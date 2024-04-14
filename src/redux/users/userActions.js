@@ -30,7 +30,7 @@ export const fetchUsers = () => {
   return (dispatch) => {
     dispatch(fetchUsersRequest());
     axios
-      .get("https://jsonplaceholder.typicode.com/users")
+      .get("http://localhost:3000/students")
       .then((res) => {
         const data = res.data;
         dispatch(fetchUsersSuccess(data));

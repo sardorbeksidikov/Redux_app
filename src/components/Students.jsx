@@ -2,41 +2,37 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { fetchUsers } from "./../redux/users/userActions";
 
 const Students = () => {
-  const [data, setData] = useState([]);
   const [records, setRecords] = useState([]);
+  const { loading, users, error } = useSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 8;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
-  const Records = records.slice(firstIndex, lastIndex);
-  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const Records = users.slice(firstIndex, lastIndex);
+  const totalPages = Math.ceil(users.length / recordsPerPage);
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const dispatch = useDispatch();
+  const navigation = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/students")
-      .then((res) => {
-        setData(res.data);
-        setRecords(res.data);
-      })
-      .catch((err) => console.log(err));
+    dispatch(fetchUsers());
   }, []);
 
   const Filter = (event) => {
-    setRecords(
-      Records.filter(
-        (el) =>
-          el.name.toLowerCase().includes(event.target.value) ||
-          el.lastName.toLowerCase().includes(event.target.value) ||
-          el.group.toLowerCase().includes(event.target.value)
-      )
+    const filteredUsers = users.filter(
+      (el) =>
+        el.name.toLowerCase().includes(event.target.value.toLowerCase()) ||
+        el.lastName.toLowerCase().includes(event.target.value.toLowerCase()) ||
+        el.group.toLowerCase().includes(event.target.value.toLowerCase())
     );
+    dispatch(fetchUsers(filteredUsers));
   };
 
-  const navigation = useNavigate();
 
   const editProduct = (id) => {
     navigation(`/edit/${id}`);
@@ -58,11 +54,23 @@ const Students = () => {
     }
   };
 
+  const handleDelete = (id) => {
+    
+    axios
+      .delete(`your_backend_endpoint/${id}`)
+      .then((response) => {
+        dispatch(fetchUsers());
+      })
+      .catch((error) => {
+        console.error("Error deleting user: ", error);
+      });
+  };
+
   return (
     <div className="container mt-5">
       <div className="input-group w-100">
         <input
-        name="search"
+          name="search"
           type="search"
           id="search"
           placeholder="Search"
@@ -70,7 +78,7 @@ const Students = () => {
           onChange={Filter}
         />
 
-        <Link className="btn btn-success mt-4" to={'/add'}>
+        <Link className="btn btn-success mt-4" to={"/add"}>
           Add
         </Link>
       </div>
@@ -97,27 +105,35 @@ const Students = () => {
             </th>
           </tr>
         </thead>
-        <tbody>
-          {Records.map((el, i) => {
-            return (
-              <tr scope="row" key={i}>
-                <td className="border">{i + 1}</td>
-                <td className="border">{el.name}</td>
-                <td className="border">{el.lastName}</td>
-                <td className="border">{el.group}</td>
-                <td className="border">{el.doesWork ? "✅" : "❌"}</td>
-                <td className="border  d-flex gap-2">
-                  <Link to={`/edit/${el.id}`} className="btn btn-primary w-50">
-                    <FaEdit />
-                  </Link>
-                  <button className="btn btn-danger w-50" onClick={() => handleDelete(el.id) }>
-                    <MdDelete />
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
+        {loading && <h1>Loading...</h1>}
+        {error && <h1>{error}</h1>}
+        {users.length > 0 && (
+          <tbody>
+            {Records.map((el, i) => {
+              return (
+                <tr scope="row" key={i}>
+                  <td className="border">{i + 1}</td>
+                  <td className="border">{el.name}</td>
+                  <td className="border">{el.lastName}</td>
+                  <td className="border">{el.group}</td>
+                  <td className="border">{el.doesWork ? "✅" : "❌"}</td>
+                  <td className="border  d-flex gap-2">
+                    <Link
+                      to={`/edit/${el.id}`}
+                      className="btn btn-primary w-50">
+                      <FaEdit />
+                    </Link>
+                    <button
+                      className="btn btn-danger w-50"
+                      onClick={() => handleDelete(el.id)}>
+                      <MdDelete />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        )}
       </table>
       <nav>
         <ul className="pagination">
@@ -146,10 +162,6 @@ const Students = () => {
       </nav>
     </div>
   );
-  function handleDelete (id) {
-    const newList = Records.filter(li => li.id !== id);
-    setRecords(newList);
-  }
 };
 
 export default Students;
