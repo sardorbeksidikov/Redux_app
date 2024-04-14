@@ -1,0 +1,13 @@
+a {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+a,
+span {
+  transition: all 0.4s ease-in-out;
+}
+
+a.active span {
+  color: crimson;
+}
