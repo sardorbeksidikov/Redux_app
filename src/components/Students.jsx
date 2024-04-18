@@ -5,7 +5,7 @@ import { MdDelete } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchTodos} from "../app/todo/todoSlice";
-import { searchTodos, filterTodos } from "../app/todo/todoSlice";
+import { searchTodos } from "../app/todo/todoSlice";
 
 const Students = () => {
   const { loading, todos, error } = useSelector((state) => state.todo);
@@ -26,7 +26,7 @@ const Students = () => {
   
 
 
-  const editProduct = (id) => {
+  const extraReducers = (id) => {
     navigation(`/edit/${id}`);
   };
 
