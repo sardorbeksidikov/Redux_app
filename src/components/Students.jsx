@@ -4,34 +4,26 @@ import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchUsers } from "./../redux/users/userActions";
+import { fetchTodos} from "../app/todo/todoSlice";
+import { searchTodos, filterTodos } from "../app/todo/todoSlice";
 
 const Students = () => {
-  const [records, setRecords] = useState([]);
-  const { loading, users, error } = useSelector((state) => state.user);
+  const { loading, todos, error } = useSelector((state) => state.todo);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 8;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
-  const Records = users.slice(firstIndex, lastIndex);
-  const totalPages = Math.ceil(users.length / recordsPerPage);
+  const Records = todos.slice(firstIndex, lastIndex);
+  const totalPages = Math.ceil(todos.length / recordsPerPage);
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
   const dispatch = useDispatch();
   const navigation = useNavigate();
+  
 
   useEffect(() => {
-    dispatch(fetchUsers());
+    dispatch(fetchTodos());
   }, []);
-
-  const Filter = (event) => {
-    const filteredUsers = users.filter(
-      (el) =>
-        el.name.toLowerCase().includes(event.target.value.toLowerCase()) ||
-        el.lastName.toLowerCase().includes(event.target.value.toLowerCase()) ||
-        el.group.toLowerCase().includes(event.target.value.toLowerCase())
-    );
-    dispatch(fetchUsers(filteredUsers));
-  };
+  
 
 
   const editProduct = (id) => {
@@ -55,11 +47,10 @@ const Students = () => {
   };
 
   const handleDelete = (id) => {
-    
     axios
       .delete(`your_backend_endpoint/${id}`)
       .then((response) => {
-        dispatch(fetchUsers());
+        dispatch(fetchTodos());
       })
       .catch((error) => {
         console.error("Error deleting user: ", error);
@@ -75,7 +66,7 @@ const Students = () => {
           id="search"
           placeholder="Search"
           className="form-control w-75 mt-4"
-          onChange={Filter}
+          onClick={() => dispatch(searchTodos())}
         />
 
         <Link className="btn btn-success mt-4" to={"/add"}>
@@ -107,7 +98,7 @@ const Students = () => {
         </thead>
         {loading && <h1>Loading...</h1>}
         {error && <h1>{error}</h1>}
-        {users.length > 0 && (
+        {todos.length > 0 && (
           <tbody>
             {Records.map((el, i) => {
               return (

@@ -11,10 +11,9 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import Deposits from "./components/Dashboard/Deposits";
 import Orders from "./components/Dashboard/Order";
 import Title from "./components/Dashboard/Title";
-import Teachers from "./pages/Teachers";
 import Main from "./components/teachers/Main";
 import { Provider } from "react-redux";
-import store from './redux/store';
+import store from './app/store';
 
 const App = () => {
   return (
